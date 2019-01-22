@@ -41,6 +41,7 @@ class NginxService {
       await this.stop()
       const {stderr} = await exec(`${this.nginx} -c ${this.config}`)
       console.log(stderr)
+      return true
     } catch (e) {
       console.log(e)
       return false
@@ -49,7 +50,7 @@ class NginxService {
   async reload () {
     try {
       if (await this.test()) {
-        const {stdout, stderr} = await exec('nginx -s reload')
+        const {stdout, stderr} = await exec(`${this.nginx} -s reload`)
         console.log(stdout)
         console.log(stderr)
         return true

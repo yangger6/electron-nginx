@@ -114,12 +114,13 @@ export const renderConfig = async () => {
     const formTemp = fs.readFileSync(path.resolve(path.join(__dirname, './config.ejs')), 'utf-8')
     // 解析 渲染
     const formRender = await ejs.render(formTemp, loadUsingRules())
-    fs.writeFileSync(path.join(__dirname, './enable-proxy.conf'), formRender)
+    console.log(formRender)
+    await writeFile(path.join(__dirname, './enable-proxy.conf'), formRender)
+    return true
   } catch (e) {
     console.log(e)
     return false
   }
-  return true
 }
 export const loadUsingRules = () => {
   const obj = {
@@ -142,13 +143,13 @@ export const writeFile = async (filePath, content) => {
   try {
     if (!await fs.accessSync(filePath, fs.constants.F_OK)) {
       console.log('文件已存在, 删除原文件', filePath)
-      await fs.unlinkSync(filePath)
-      await fs.writeFileSync(filePath, content)
+      fs.unlinkSync(filePath)
+      fs.writeFileSync(filePath, content)
       console.log('成功写入文件', filePath)
     }
   } catch (e) {
     try {
-      await fs.writeFileSync(filePath, content)
+      fs.writeFileSync(filePath, content)
       console.log('成功写入文件', filePath)
     } catch (e) {
       console.log(e)
