@@ -1,0 +1,29 @@
+{
+  "mode": "boss-pro",
+  "port": "9999",
+  "host": {
+    "boss-test": "https://test.www.aa.com.cn",
+    "boss-dev": "https://dev.www.bb.com.cn",
+    "boss-pro": "https://newboss.cc.com"
+  },
+  "proxyRules": [
+    {
+      "id": "06eb1141-44e6-423e-bb83-c6cff5b9cc86",
+      "mode": "boss-test",
+      "rule": "/boss-api",
+      "status": true
+    },
+    {
+      "id": "cbc19512-17d7-49b4-bcb1-12648c19da3b",
+      "mode": "boss-test",
+      "status": true,
+      "rule": "/sapi/gateway/boss-system-api"
+    },
+    {
+      "id": "bf4dc979-425d-4cc9-a057-187bb7e2511b",
+      "mode": "boss-test",
+      "status": true,
+      "rule": "/boss-system-api"
+    }
+  ]
+}
