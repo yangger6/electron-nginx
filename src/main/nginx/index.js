@@ -47,9 +47,11 @@ export const addHost = async (host, proxyHost) => {
     const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     jsonObj.host[host] = proxyHost
     await writeJson(jsonObj)
-    console.log('add host' + host + ' -> ' + proxyHost)
+    console.log('add host ' + host + ' -> ' + proxyHost)
+    return true
   } catch (e) {
     console.log('add host error -> ' + e)
+    return false
   }
 }
 export const changeMode = async (mode) => {
