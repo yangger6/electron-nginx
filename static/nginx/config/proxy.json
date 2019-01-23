@@ -1,10 +1,10 @@
 {
-  "mode": "boss-pro",
-  "port": "9999",
+  "mode": "boss-test",
+  "port": "8088",
   "host": {
-    "boss-test": "https://test.www.aa.com.cn",
-    "boss-dev": "https://dev.www.bb.com.cn",
-    "boss-pro": "https://newboss.cc.com"
+    "boss-test": "https://test.www.shanhs.com.cn",
+    "boss-dev": "https://dev.www.shanhs.com.cn",
+    "boss-pro": "https://newboss.shanhs.com"
   },
   "proxyRules": [
     {

@@ -1,4 +1,4 @@
-# nginx-config
+# electron-nginx
 
 > An electron-vue project
 

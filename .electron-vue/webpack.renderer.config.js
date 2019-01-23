@@ -112,12 +112,8 @@ let rendererConfig = {
             name: 'fonts/[name]--[folder].[ext]'
           }
         }
-      },
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
       }
-      ]
+    ]
   },
   node: {
     __dirname: process.env.NODE_ENV !== 'production',

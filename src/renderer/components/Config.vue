@@ -9,7 +9,9 @@
                 <div>
                     <el-button size="mini" @click="reload">重启服务</el-button>
                     <el-button size="mini" @click="importFile">导入配置</el-button>
-                    <el-button size="mini" @click="openFile">打开配置文件</el-button>
+                    <el-button size="mini" @click="openFile('get-path')">打开配置文件</el-button>
+                    <el-button size="mini" @click="stopNginx">停止</el-button>
+                    <el-button size="mini" @click="startNginx">启动</el-button>
                 </div>
             </h4>
         </el-header>
@@ -17,6 +19,9 @@
             <el-step title="生成配置文件" :icon="steps.isWriting ? 'el-icon-loading' : 'el-icon-edit'"></el-step>
             <el-step title="重置服务" :icon="steps.isReloading ? 'el-icon-loading' : 'el-icon-refresh'"></el-step>
         </el-steps>
+        <p style="margin:10px 20px">
+            <el-button type="danger" size="mini" @click="openFile('get-error-log-path')" v-show="errorLogVisible">打开错误日志</el-button>
+        </p>
         <el-main style="margin-top: 10px">
             <el-collapse v-model="activeNames">
                 <el-collapse-item :title="'切换环境/端口 当前代理地址：' + (rules['host'] ? rules['host'][rules.mode]: '')" name="1">
@@ -115,6 +120,7 @@
         newPort: '',
         newHostName: '',
         newHost: '',
+        errorLogVisible: false,
         isOpenNginx: false,
         showStep: false,
         stepActive: 0,
@@ -125,6 +131,7 @@
       }
     },
     async created () {
+      await this.startNginx()
       await this.reload()
     },
     methods: {
@@ -142,11 +149,13 @@
         if (await ipcRenderer.sendSync('update-rule', [row.id, row])) {
           this.$notify.success(`更新规则成功`)
         }
+        await this.reload()
       },
       async handleDelete (index, row) {
         if (await ipcRenderer.sendSync('delete-rule', row.id)) {
           this.$notify.success(`删除规则成功`)
         }
+        await this.reload()
       },
       async importFile () {
         dialog.showOpenDialog({
@@ -157,40 +166,50 @@
           if (await ipcRenderer.sendSync('import-file', filePath[0])) {
             this.$notify.success(`导入成功`)
           }
+          await this.reload()
         })
       },
       async addNewRule () {
         if (await ipcRenderer.sendSync('add-rule', [this.newRule, this.newMode])) {
           this.$notify.success(`新增规则:${this.newRule}成功`)
+          await this.init()
         }
       },
       async addHost () {
         if (await ipcRenderer.sendSync('add-host', [this.newHostName, this.newHost])) {
           this.$notify.success(`新增环境:${this.newHost}成功`)
+          await this.init()
         }
       },
       async reload () {
         const delay = (t) => new Promise(resolve => setTimeout(resolve, t))
         this.showStep = true
         this.steps.isWriting = true
-        await delay(500)
+        await delay(300)
         if (await ipcRenderer.sendSync('render-config')) {
           this.steps.isWriting = false
           this.steps.isReloading = true
           this.stepActive = 1
         }
-        await delay(500)
         if (await ipcRenderer.sendSync('reload-nginx')) {
           this.steps.isReloading = false
+          this.errorLogVisible = false
           this.stepActive = 2
+        } else {
+          this.steps.isReloading = false
+          this.errorLogVisible = true
+          this.$notify.error('服务重启失败')
+          return
         }
+        await delay(300)
         await this.init()
         this.showStep = false
         this.stepActive = 0
-        this.$notify.success('重启成功')
+        this.$notify.success('重启服务成功')
       },
       async updateMode (mode) {
         if (await ipcRenderer.sendSync('update-mode', mode)) {
+          await this.reload()
           this.$notify.success(`切换环境:${mode}成功`)
         }
       },
@@ -200,17 +219,31 @@
         }
         if (await ipcRenderer.sendSync('delete-mode', mode)) {
           this.$notify.success(`删除环境:${mode}成功`)
+          await this.init()
         }
       },
       async updatePort () {
         if (await ipcRenderer.sendSync('update-port', this.newPort)) {
           this.$notify.success(`切换端口:${this.newPort}成功`)
+          await this.reload()
         }
       },
-      async openFile () {
-        const filePath = await ipcRenderer.sendSync('get-path')
+      async openFile (path) {
+        const filePath = await ipcRenderer.sendSync(path)
         console.log(filePath)
         shell.openItem(filePath)
+      },
+      async stopNginx () {
+        if (await ipcRenderer.sendSync('stop-nginx')) {
+          await this.init()
+          this.$notify.success(`停止成功`)
+        }
+      },
+      async startNginx () {
+        if (await ipcRenderer.sendSync('start-nginx')) {
+          await this.init()
+          this.$notify.success(`启动成功`)
+        }
       }
     }
   }

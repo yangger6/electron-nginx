@@ -1,14 +1,18 @@
 'use strict'
 
 import { app, BrowserWindow } from 'electron'
-require('./linten')
+import path from 'path'
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
 if (process.env.NODE_ENV !== 'development') {
-  global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+  global.__static = path.join(__dirname, '/static')
 }
+/**
+ * 监听render事件
+ */
+require('./linten')
 
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
@@ -21,11 +25,11 @@ function createWindow () {
    */
   mainWindow = new BrowserWindow({
     height: 550,
-    width: 800,
+    width: 900,
     useContentSize: false
   })
   mainWindow.loadURL(winURL)
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
   mainWindow.on('closed', () => {
     mainWindow = null
   })

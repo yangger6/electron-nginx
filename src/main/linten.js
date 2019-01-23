@@ -1,16 +1,29 @@
 import nginxService from './NginxService'
-import jsonObj from '../nginx/config/proxy'
 import path from 'path'
-import {renderConfig, changeMode, updatePort, deleteMode, addHost, addRules, deleteRule, updateRule, importFile} from '../nginx/config/index'
+import fs from 'fs'
+import {renderConfig, changeMode, updatePort, deleteMode, addHost, addRules, deleteRule, updateRule, importFile} from './nginx/index'
+const jsonPath = path.resolve(path.join(__static, './nginx/config/proxy.json'))
 const { ipcMain } = require('electron')
 ipcMain.on('get-rules', async (event, arg) => {
-  event.returnValue = jsonObj
+  event.returnValue = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
 })
 ipcMain.on('get-path', async (event) => {
-  event.returnValue = path.resolve(path.join(__dirname, '../nginx/config/proxy.json'))
+  event.returnValue = path.resolve(path.join(__static, './nginx/config/proxy.json'))
+})
+ipcMain.on('get-error-log-path', async (event) => {
+  event.returnValue = path.resolve(path.join(__static, `./nginx/${process.platform === 'win32' ? 'windows' : 'mac'}/logs/error.log`))
 })
 ipcMain.on('get-status', async (event, arg) => {
   event.returnValue = await nginxService.status()
+})
+ipcMain.on('stop-nginx', async (event, arg) => {
+  event.returnValue = await nginxService.stop()
+})
+ipcMain.on('start-nginx', async (event, arg) => {
+  nginxService.start()
+  setTimeout(() => {
+    event.returnValue = true
+  }, 1000)
 })
 ipcMain.on('render-config', async (event, arg) => {
   event.returnValue = await renderConfig()

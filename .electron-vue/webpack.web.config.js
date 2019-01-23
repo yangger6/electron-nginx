@@ -88,10 +88,6 @@ let webConfig = {
             name: 'fonts/[name].[ext]'
           }
         }
-      },
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
       }
     ]
   },

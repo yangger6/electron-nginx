@@ -1,9 +1,10 @@
 import fs from 'fs'
 import path from 'path'
 import ejs from 'ejs'
-import jsonObj from './proxy.json'
 import uuidV4 from 'uuid/v4'
-const jsonPath = path.resolve(path.join(__dirname, './proxy.json'))
+const jsonPath = path.resolve(path.join(__static, './nginx/config/proxy.json'))
+const logPath = process.platform === 'win32' ? 'windows/logs/error.log' : 'mac/logs/error.log'
+const tempPath = process.platform === 'win32' ? 'windows/temp' : 'mac/temp'
 export const writeJson = async (jsonObj) => {
   return new Promise((resolve, reject) => {
     fs.writeFile(jsonPath, JSON.stringify(jsonObj, null, 2), (err) => {
@@ -21,6 +22,7 @@ export const writeJson = async (jsonObj) => {
 }
 export const addRules = async (rule, mode) => {
   try {
+    const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     const addMode = mode || jsonObj.mode
     const isAdd = jsonObj.proxyRules.find((item) => item.mode === addMode && item.rule === rule)
     console.log(isAdd)
@@ -42,6 +44,7 @@ export const addRules = async (rule, mode) => {
 }
 export const addHost = async (host, proxyHost) => {
   try {
+    const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     jsonObj.host[host] = proxyHost
     await writeJson(jsonObj)
     console.log('add host' + host + ' -> ' + proxyHost)
@@ -51,6 +54,7 @@ export const addHost = async (host, proxyHost) => {
 }
 export const changeMode = async (mode) => {
   try {
+    const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     jsonObj.mode = mode
     await writeJson(jsonObj)
     console.log('change mode -> ' + mode)
@@ -62,6 +66,7 @@ export const changeMode = async (mode) => {
 }
 export const deleteMode = async (mode) => {
   try {
+    const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     delete jsonObj.host[mode]
     await writeJson(jsonObj)
     console.log('delete mode -> ' + mode)
@@ -73,6 +78,7 @@ export const deleteMode = async (mode) => {
 }
 export const updateRule = async (id, rule) => {
   try {
+    const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     jsonObj.proxyRules = jsonObj.proxyRules.map(item => {
       if (item.id === id) {
         console.log(`update rule -> ${id} successfully`)
@@ -90,6 +96,7 @@ export const updateRule = async (id, rule) => {
 }
 export const deleteRule = async (deleteId) => {
   try {
+    const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     jsonObj.proxyRules = jsonObj.proxyRules.filter(({id}) => deleteId !== id)
     await writeJson(jsonObj)
     console.log('delete rules success id -> ' + deleteId)
@@ -101,6 +108,7 @@ export const deleteRule = async (deleteId) => {
 }
 export const updatePort = async (port) => {
   try {
+    const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     jsonObj.port = port
     await writeJson(jsonObj)
     return true
@@ -111,11 +119,11 @@ export const updatePort = async (port) => {
 }
 export const renderConfig = async () => {
   try {
-    const formTemp = fs.readFileSync(path.resolve(path.join(__dirname, './config.ejs')), 'utf-8')
+    const formTemp = fs.readFileSync(path.resolve(path.join(__static, './nginx/config/config.ejs')), 'utf-8')
     // 解析 渲染
     const formRender = await ejs.render(formTemp, loadUsingRules())
     console.log(formRender)
-    await writeFile(path.join(__dirname, './enable-proxy.conf'), formRender)
+    await writeFile(path.join(__static, './nginx/config/enable-proxy.conf'), formRender)
     return true
   } catch (e) {
     console.log(e)
@@ -123,9 +131,16 @@ export const renderConfig = async () => {
   }
 }
 export const loadUsingRules = () => {
+  const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
   const obj = {
     defaultMode: '',
     rules: []
+  }
+  obj.logPath = path.resolve(path.join(__static, `./nginx/${logPath}`))
+  obj.tempPath = path.resolve(path.join(__static, `./nginx/${tempPath}`))
+  if (process.platform === 'win32') {
+    obj.logPath = obj.logPath.replace(/\\/g, '/')
+    obj.tempPath = obj.tempPath.replace(/\\/g, '/')
   }
   obj.defaultMode = jsonObj['host'][jsonObj.mode]
   obj.port = jsonObj['port']
