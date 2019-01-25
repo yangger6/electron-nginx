@@ -34,12 +34,18 @@ export const addRules = async (rule, mode) => {
         rule
       })
       await writeJson(jsonObj)
-      console.log(addMode + 'add rules' + rule)
+      console.log(addMode + ' add rules success -> ' + rule)
+      await addLog(addMode + ' add rules success -> ' + rule)
+      return `新增成功`
     } else {
       console.log(`add rules error -> ${addMode}${rule} 已存在`)
+      await addLog(`add rules error -> ${addMode}${rule} 已存在`)
+      return `add rules error: ${addMode}${rule} 已存在`
     }
   } catch (e) {
     console.log('add rules error -> ' + e)
+    await addLog('add rules error -> ' + e)
+    return `新增失败: ${e}`
   }
 }
 export const addHost = async (host, proxyHost) => {
@@ -47,10 +53,12 @@ export const addHost = async (host, proxyHost) => {
     const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     jsonObj.host[host] = proxyHost
     await writeJson(jsonObj)
-    console.log('add host ' + host + ' -> ' + proxyHost)
+    console.log('add host success ->' + host + ' -> ' + proxyHost)
+    await addLog('add host success ->' + host + ' -> ' + proxyHost)
     return true
   } catch (e) {
     console.log('add host error -> ' + e)
+    await addLog('add host error -> ' + e)
     return false
   }
 }
@@ -59,10 +67,12 @@ export const changeMode = async (mode) => {
     const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     jsonObj.mode = mode
     await writeJson(jsonObj)
-    console.log('change mode -> ' + mode)
+    console.log('change mode success -> ' + mode)
+    await addLog('change mode success -> ' + mode)
     return true
   } catch (e) {
     console.log('change mode error -> ' + e)
+    await addLog('change mode error -> ' + e)
     return false
   }
 }
@@ -71,28 +81,34 @@ export const deleteMode = async (mode) => {
     const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     delete jsonObj.host[mode]
     await writeJson(jsonObj)
-    console.log('delete mode -> ' + mode)
+    console.log('delete mode success -> ' + mode)
+    await addLog('delete mode success -> ' + mode)
     return true
   } catch (e) {
     console.log('delete mode error -> ' + e)
+    await addLog('delete mode error -> ' + e)
     return false
   }
 }
 export const updateRule = async (id, rule) => {
   try {
     const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
+    let changeId = ''
     jsonObj.proxyRules = jsonObj.proxyRules.map(item => {
       if (item.id === id) {
+        changeId = id
         console.log(`update rule -> ${id} successfully`)
         return rule
       } else {
         return item
       }
     })
+    await addLog(`update rule -> ${changeId} successfully`)
     await writeJson(jsonObj)
     return true
   } catch (e) {
     console.log('update rules error -> ' + e)
+    await addLog('update rules error -> ' + e)
     return false
   }
 }
@@ -102,9 +118,11 @@ export const deleteRule = async (deleteId) => {
     jsonObj.proxyRules = jsonObj.proxyRules.filter(({id}) => deleteId !== id)
     await writeJson(jsonObj)
     console.log('delete rules success id -> ' + deleteId)
+    await addLog(`delete rules success id -> ${deleteId}`)
     return true
   } catch (e) {
     console.log('delete rules error -> ' + e)
+    await addLog('delete rules error -> ' + e)
     return false
   }
 }
@@ -113,9 +131,12 @@ export const updatePort = async (port) => {
     const jsonObj = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
     jsonObj.port = port
     await writeJson(jsonObj)
+    console.log('update port success port -> ' + port)
+    await addLog('update port success port -> ' + port)
     return true
   } catch (e) {
-    console.log('change port error -> ' + e)
+    console.log('update port error -> ' + e)
+    await addLog('update port error -> ' + e)
     return false
   }
 }
@@ -152,7 +173,6 @@ export const loadUsingRules = () => {
       proxy: jsonObj['host'][mode]
     })
   })
-  console.log(obj)
   return obj
 }
 export const writeFile = async (filePath, content) => {
@@ -181,6 +201,32 @@ export const importFile = async (filePath) => {
     return true
   } catch (e) {
     console.log('importFile error ->' + e)
+    return false
+  }
+}
+export const addLog = async (logText) => {
+  try {
+    const logPath = path.resolve(path.join(__static, './log.txt'))
+    let log = fs.readFileSync(logPath, 'utf8')
+    let addLog = ''
+    addLog += `┏ Log: ${new Date()}-------------------` + '\r\n'
+    addLog += logText + '\r\n'
+    addLog += `┗ ----------------------------------------------------------------------` + '\r\n'
+    log = addLog + log
+    fs.writeFileSync(logPath, log)
+    return true
+  } catch (e) {
+    console.log(e)
+    return false
+  }
+}
+export const cleanLogs = async () => {
+  try {
+    const logPath = path.resolve(path.join(__static, './log.txt'))
+    fs.writeFileSync(logPath, '')
+    return true
+  } catch (e) {
+    console.log(e)
     return false
   }
 }

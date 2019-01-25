@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import {addLog} from './nginx/index'
 const jsonPath = path.resolve(path.join(__static, './nginx/config/proxy.json'))
 const util = require('util')
 const isWindows = process.platform === 'win32'
@@ -25,12 +26,14 @@ class NginxService {
       const {stderr} = await exec(`${this.nginx} -t -c ${this.config}`)
       console.log(stderr)
       if (stderr.match('successful')) {
+        await addLog('nginx test successful')
         return true
       } else {
         return false
       }
     } catch (e) {
       console.log(e)
+      await addLog('nginx test error ->' + e)
       return false
     }
   }
@@ -42,16 +45,20 @@ class NginxService {
         await exec(`ps -lef|grep -i nginx:|awk '{ print $2}'|xargs kill -9`)
       }
     } catch (e) {
+      await addLog('nginx stop error ->' + e)
       console.log(e)
     }
+    await addLog('nginx stop successful')
     return true
   }
   async start () {
     try {
       const {stderr} = await exec(`${this.nginx} -c ${this.config}`)
       console.log(stderr)
+      await addLog('nginx start successful')
       return true
     } catch (e) {
+      await addLog('nginx start error ->' + e)
       console.log(e)
       return false
     }
@@ -68,11 +75,13 @@ class NginxService {
           console.log(stdout)
           console.log(stderr)
         }
+        await addLog('nginx reload successful')
         return true
       } else {
         return false
       }
     } catch (e) {
+      await addLog('nginx reload error ->' + e)
       console.log(e)
       return false
     }
@@ -85,16 +94,13 @@ class NginxService {
       } else {
         await exec(`lsof -i:${jsonObj.port}`)
       }
+      await addLog('nginx get status successful')
       return true
     } catch (e) {
+      await addLog('nginx get status error ->' + e)
       console.log(e)
       return false
     }
   }
 }
 export default new NginxService()
-// (async () => {
-//   const aa = new NginxService()
-//   await aa.start()
-//   await aa.reload()
-// })()

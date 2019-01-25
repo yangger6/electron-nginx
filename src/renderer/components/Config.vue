@@ -102,15 +102,22 @@
                         </el-table-column>
                     </el-table>
                 </el-collapse-item>
+                <el-collapse-item title="日志" name="3">
+                    <log></log>
+                </el-collapse-item>
             </el-collapse>
         </el-main>
     </el-container>
 </template>
 
 <script>
+  import log from './log'
   const { ipcRenderer, shell } = require('electron')
   const { dialog } = require('electron').remote
   export default {
+    components: {
+      log
+    },
     data () {
       return {
         rules: {},
@@ -170,10 +177,8 @@
         })
       },
       async addNewRule () {
-        if (await ipcRenderer.sendSync('add-rule', [this.newRule, this.newMode])) {
-          this.$notify.success(`新增规则:${this.newRule}成功`)
-          await this.init()
-        }
+        this.$notify.success(await ipcRenderer.sendSync('add-rule', [this.newRule, this.newMode]))
+        await this.reload()
       },
       async addHost () {
         if (await ipcRenderer.sendSync('add-host', [this.newHostName, this.newHost])) {

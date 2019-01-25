@@ -1,29 +1,36 @@
 {
   "mode": "boss-test",
-  "port": "8088",
+  "port": "8091",
   "host": {
     "boss-test": "https://test.www.shanhs.com.cn",
     "boss-dev": "https://dev.www.shanhs.com.cn",
-    "boss-pro": "https://newboss.shanhs.com"
+    "boss-pro": "https://newboss.shanhs.com",
+    "m.shanhs": "https://test.m.shanhs.com.cn"
   },
   "proxyRules": [
     {
       "id": "06eb1141-44e6-423e-bb83-c6cff5b9cc86",
       "mode": "boss-test",
       "rule": "/boss-api",
-      "status": true
+      "status": false
     },
     {
       "id": "cbc19512-17d7-49b4-bcb1-12648c19da3b",
       "mode": "boss-test",
-      "status": true,
-      "rule": "/sapi/gateway/boss-system-api"
+      "rule": "/sapi/gateway/boss-system-api",
+      "status": false
     },
     {
       "id": "bf4dc979-425d-4cc9-a057-187bb7e2511b",
       "mode": "boss-test",
+      "rule": "/boss-system-api",
+      "status": false
+    },
+    {
+      "id": "6cd48631-6154-4021-9f17-28b191469c89",
+      "mode": "m.shanhs",
       "status": true,
-      "rule": "/boss-system-api"
+      "rule": "/sapi/gateway/open-api"
     }
   ]
 }

@@ -1,7 +1,7 @@
 import nginxService from './NginxService'
 import path from 'path'
 import fs from 'fs'
-import {renderConfig, changeMode, updatePort, deleteMode, addHost, addRules, deleteRule, updateRule, importFile} from './nginx/index'
+import {renderConfig, changeMode, updatePort, deleteMode, addHost, addRules, deleteRule, updateRule, importFile, cleanLogs} from './nginx/index'
 const jsonPath = path.resolve(path.join(__static, './nginx/config/proxy.json'))
 const { ipcMain } = require('electron')
 ipcMain.on('get-rules', async (event, arg) => {
@@ -12,6 +12,15 @@ ipcMain.on('get-path', async (event) => {
 })
 ipcMain.on('get-error-log-path', async (event) => {
   event.returnValue = path.resolve(path.join(__static, `./nginx/${process.platform === 'win32' ? 'windows' : 'mac'}/logs/error.log`))
+})
+ipcMain.on('get-logs', async (event) => {
+  event.returnValue = fs.readFileSync(path.resolve(path.join(__static, `./log.txt`)), 'utf8')
+})
+ipcMain.on('get-logs-path', async (event) => {
+  event.returnValue = path.resolve(path.join(__static, `./log.txt`))
+})
+ipcMain.on('clean-logs', async (event) => {
+  event.returnValue = await cleanLogs()
 })
 ipcMain.on('get-status', async (event, arg) => {
   event.returnValue = await nginxService.status()
