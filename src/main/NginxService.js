@@ -24,7 +24,11 @@ class NginxService {
   }
   async test () {
     try {
-      const {stderr} = await exec(`${this.nginx} -t -c "${this.config}"`)
+      let config = this.config
+      if (isWindows) {
+        config = `"${config}"`
+      }
+      const {stderr} = await exec(`${this.nginx} -t -c ${config}`)
       console.log(stderr)
       if (stderr.match('successful')) {
         await addLog('nginx test successful')
@@ -54,7 +58,11 @@ class NginxService {
   }
   async start () {
     try {
-      const {stderr} = await exec(`${this.nginx} -c "${this.config}"`)
+      let config = this.config
+      if (isWindows) {
+        config = `"${config}"`
+      }
+      const {stderr} = await exec(`${this.nginx} -c ${config}`)
       console.log(stderr)
       await addLog('nginx start successful')
       return true

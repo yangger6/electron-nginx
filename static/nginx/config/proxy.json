@@ -1,6 +1,6 @@
 {
   "mode": "boss-test",
-  "port": "8091",
+  "port": "8092",
   "host": {
     "boss-test": "https://test.www.shanhs.com.cn",
     "boss-dev": "https://dev.www.shanhs.com.cn",
