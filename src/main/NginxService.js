@@ -16,14 +16,15 @@ class NginxService {
     this.config = path.resolve(path.join(__static, './nginx/config/enable-proxy.conf'))
     if (isWindows) {
       const truePath = path.resolve(path.join(__static, `./nginx/windows/`))
-      this.nginx = truePath + '\\nginx.exe -p ' + truePath + '\\'
+      this.nginx = '"' + truePath + '/nginx.exe" ' + '-p "' + truePath + '"'
+      this.nginx = this.nginx.replace(/\\/g, '/')
     } else {
       this.nginx = path.resolve(path.join(__static, `./nginx/mac/bin/nginx`))
     }
   }
   async test () {
     try {
-      const {stderr} = await exec(`${this.nginx} -t -c ${this.config}`)
+      const {stderr} = await exec(`${this.nginx} -t -c "${this.config}"`)
       console.log(stderr)
       if (stderr.match('successful')) {
         await addLog('nginx test successful')
@@ -53,7 +54,7 @@ class NginxService {
   }
   async start () {
     try {
-      const {stderr} = await exec(`${this.nginx} -c ${this.config}`)
+      const {stderr} = await exec(`${this.nginx} -c "${this.config}"`)
       console.log(stderr)
       await addLog('nginx start successful')
       return true
@@ -67,7 +68,7 @@ class NginxService {
     try {
       if (await this.test()) {
         if (isWindows) {
-          const {stdout, stderr} = await exec(`${this.nginx} -s reload -c ${this.config}`)
+          const {stdout, stderr} = await exec(`${this.nginx} -s reload -c "${this.config}"`)
           console.log(stdout)
           console.log(stderr)
         } else {
