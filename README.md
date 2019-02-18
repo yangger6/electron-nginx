@@ -1,27 +1,35 @@
 # electron-nginx
 
-> An electron-vue project
+> 一个用Electronn做的ginx本地代理配置的程序,对nginx的配置增删查改.，通过child_process的子进程启动、重启、重载nginx服务，fs模块读写nginx的配置
 
-#### Build Setup
+## 应用特性 
+
+-  **能够快速的配置nginx代理路径**
+-  **能够配合前端项目快速切换环境**
+-  操作日志
+-  错误日志
+
+## 如何使用
+
+在下载和运行这个项目之前，你需要在电脑上安装 [Git](https://git-scm.com) 和 [Node.js](https://nodejs.org/en/download/) (来自 [npm](https://www.npmjs.com/))。在命令行中输入:
 
 ``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:9080
-npm run dev
-
-# build electron application for production
-npm run build
-
-# run unit & end-to-end tests
-npm test
-
-
-# lint all JS/Vue component files in `src/`
-npm run lint
-
+# 下载仓库
+git clone https://github.com/yangger6/electron-nginx.git
+# 进入仓库
+cd electron-nginx
+# 安装依赖, 运行应用
+npm install && npm dev
 ```
+
+根据你的平台打包应用:
+
+``` shell
+npm run build:darwin
+npm run uild:linux
+npm run build:win32
+```
+
 
 ---
 
