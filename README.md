@@ -1,6 +1,6 @@
 # electron-nginx
 
-> 一个用Electronn做的ginx本地代理配置的程序,对nginx的配置增删查改.，通过child_process的子进程启动、重启、重载nginx服务，fs模块读写nginx的配置
+> 一个用Electron + Vue2.x 做的nginx本地代理配置的程序, 对nginx的配置增删查改，通过node的child_process(子进程)启动、重启、重载nginx服务，fs模块读写nginx的配置
 
 ## 应用特性 
 
